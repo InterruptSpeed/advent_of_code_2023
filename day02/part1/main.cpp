@@ -1,8 +1,8 @@
-// adventofcode.com/2023/day/1
+// adventofcode.com/2023/day/2
 //$clang++ main.cpp --std=c++17 -o main
 //$./main
 
-// output should be 54338 for input.txt
+// output should be 2810 for input.txt
 
 #include <iostream>
 #include <fstream>
@@ -77,6 +77,16 @@ struct Cubes {
         os << cubes.r << " red, " << cubes.g << " green, and " << cubes.b << " blue cubes";
         return os;
     }
+
+    friend bool operator<=(const Cubes& lhs, const Cubes& rhs)
+    {
+        return (lhs.r <= rhs.r) && (lhs.g <= rhs.g) && (lhs.b <= rhs.b);
+    }
+
+    friend bool operator==(const Cubes& lhs, const Cubes& rhs)
+    {
+        return (lhs.r == rhs.r) && (lhs.g == rhs.g) && (lhs.b == rhs.b);
+    }
 };
 
 class Bag {
@@ -84,7 +94,12 @@ class Bag {
         Bag(size_t game_id, size_t num_reveals, Cubes cubes) : m_game_id(game_id), m_num_reveals(num_reveals), m_cubes(cubes){}
         static Bag create(const string line);
         friend ostream& operator<<(ostream& os, const Bag& bag);
+        friend bool operator<=(const Bag& lhs, const Bag& rhs) { return lhs.m_cubes <= rhs.m_cubes; }
+        friend bool operator==(const Bag& lhs, const Bag& rhs) { return lhs.m_cubes == rhs.m_cubes; }
 
+        auto getGameID() {
+            return m_game_id;
+        }
     private:
         size_t m_game_id;
         size_t m_num_reveals;
@@ -134,7 +149,6 @@ ostream& operator<<(ostream& os, const Bag& bag) {
     return os;
 }
 
-
 template <typename T>
 ostream& operator<<(ostream& os, const vector<T>& v) {
     os << '[';
@@ -152,21 +166,27 @@ int main()
 {
     string line;
 
-    ifstream myfile("dev_input.txt");
+    ifstream myfile("input.txt");
     if (!myfile.is_open())
     {
         cout << "Unable to open file";
         return -1;
     }
     
-    
+    Bag elf_bag{0, 1, Cubes{12, 13, 14}};
+
+    size_t sum_of_ids = 0;
     while (getline(myfile, line))
     {
         cout << line << endl;
         auto bag = Bag::create(line);
         cout << bag << endl;
+        if (bag <= elf_bag)
+            sum_of_ids += bag.getGameID();
     }
     myfile.close();
     
+    cout << "sum of possible ids: " << sum_of_ids << endl;
+
     return 0;
 }
